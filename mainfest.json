@@ -1,0 +1,16 @@
+{
+  "short_name": "Counter",
+  "name": "Offline Counter App",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3567/3567228.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#f4f4f9",
+  "theme_color": "#007aff",
+  "display": "standalone",
+  "orientation": "portrait"
+}

@@ -1,0 +1,93 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Offline Counter</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <style>
+        :root {
+            --bg-color: #f4f4f9;
+            --text-color: #333;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #121212;
+                --text-color: #fff;
+            }
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        h1 { font-size: 1.8rem; margin-bottom: 10px; opacity: 0.8; }
+        #counter { font-size: 6rem; font-weight: bold; margin: 20px 0; color: #007aff; }
+        .btn-container { display: flex; gap: 20px; align-items: center; }
+        button {
+            border: none;
+            font-size: 2rem;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.1s;
+        }
+        button:active { transform: scale(0.9); }
+        .btn-minus { background-color: #ff3b30; color: white; }
+        .btn-plus { background-color: #34c759; color: white; }
+        .btn-reset { background-color: #8e8e93; color: white; width: 50px; height: 50px; font-size: 1.2rem; }
+    </style>
+</head>
+<body>
+
+    <h1>Offline Counter</h1>
+    <div id="counter">0</div>
+    
+    <div class="btn-container">
+        <button class="btn-minus" onclick="changeCount(-1)">−</button>
+        <button class="btn-reset" onclick="resetCount()">↺</button>
+        <button class="btn-plus" onclick="changeCount(1)">+</button>
+    </div>
+
+    <script>
+        // Load saved count from phone storage, default to 0
+        let count = parseInt(localStorage.getItem('counter_val')) || 0;
+        const counterEl = document.getElementById('counter');
+        counterEl.innerText = count;
+
+        function changeCount(amount) {
+            count += amount;
+            updateDisplay();
+        }
+
+        function resetCount() {
+            count = 0;
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            counterEl.innerText = count;
+            localStorage.setItem('counter_val', count); // Saves state locally
+        }
+
+        // Register Service Worker for offline support
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+</body>
+</html>
