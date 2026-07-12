@@ -1,4 +1,4 @@
-const CACHE_NAME = 'counter-v2'; // Changed version to force update
+const CACHE_NAME = 'counter-v3'; // Incremented to trigger an update
 const ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', (e) => {
