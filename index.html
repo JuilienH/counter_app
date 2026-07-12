@@ -18,7 +18,6 @@
                 --text-color: #fff;
             }
         }
-        /* The entire body is now the tap target */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
@@ -29,20 +28,20 @@
             justify-content: space-between;
             height: 100vh;
             margin: 0;
-            padding: 40px 0;
+            padding: 50px 0;
             box-sizing: border-box;
             user-select: none;
             -webkit-user-select: none;
         }
         .header {
             text-align: center;
-            pointer-events: none; /* Allows clicks to pass through to the body */
+            pointer-events: none;
         }
         h1 { font-size: 1.8rem; margin: 10px 0 5px 0; opacity: 0.8; }
         .instructions { font-size: 0.9rem; opacity: 0.5; }
         
         #counter { 
-            font-size: 7rem; 
+            font-size: 8rem; 
             font-weight: bold; 
             color: #007aff; 
             pointer-events: none; 
@@ -50,16 +49,11 @@
         
         .btn-container { 
             display: flex; 
-            gap: 30px; 
-            align-items: center; 
-            z-index: 10; /* Ensures buttons stay on top of the background */
+            justify-content: center;
+            z-index: 10; 
         }
         button {
             border: none;
-            font-size: 2rem;
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -68,9 +62,14 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
         button:active { transform: scale(0.9); }
-        .btn-minus { background-color: #ff3b30; color: white; }
-        .btn-plus { background-color: #34c759; color: white; }
-        .btn-reset { background-color: #8e8e93; color: white; width: 50px; height: 50px; font-size: 1.2rem; }
+        .btn-reset { 
+            background-color: #8e8e93; 
+            color: white; 
+            width: 65px; 
+            height: 65px; 
+            border-radius: 50%;
+            font-size: 1.5rem; 
+        }
     </style>
 </head>
 <body onclick="handleScreenTap()">
@@ -83,9 +82,7 @@
     <div id="counter">0</div>
     
     <div class="btn-container" onclick="handleControlClick(event)">
-        <button class="btn-minus" onclick="changeCount(-1, event)">−</button>
         <button class="btn-reset" onclick="resetCount(event)">↺</button>
-        <button class="btn-plus" onclick="changeCount(1, event)">+</button>
     </div>
 
     <script>
@@ -93,55 +90,47 @@
         const counterEl = document.getElementById('counter');
         counterEl.innerText = count;
 
-        // Create Web Audio Context for generating sound offline
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         const audioCtx = new AudioContext();
 
-        function playBeepSound() {
-            // iOS safety layer: Resume context if suspended
+        function playLoudBeep() {
             if (audioCtx.state === 'suspended') {
                 audioCtx.resume();
             }
             
-            // Build a quick synth beep dynamically
             const oscillator = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
             
             oscillator.connect(gainNode);
             gainNode.connect(audioCtx.destination);
             
-            oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(580, audioCtx.currentTime); // Pitch of the beep
-            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime); // Volume
+            // 'triangle' waveform is significantly punchier and louder than 'sine'
+            oscillator.type = 'triangle'; 
+            // Higher pitch (880Hz) cuts through background noise much better
+            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); 
+            // Increased baseline volume gain to 0.4
+            gainNode.gain.setValueAtTime(0.4, audioCtx.currentTime); 
             
             oscillator.start();
-            // Smooth fade out to prevent clicking sounds
-            gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.08);
-            oscillator.stop(audioCtx.currentTime + 0.08);
+            // Sharp decay for a clean, loud click/pop effect
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.1);
+            oscillator.stop(audioCtx.currentTime + 0.1);
         }
 
         function handleScreenTap() {
             count += 1;
             updateDisplay();
-            playBeepSound();
-        }
-
-        function changeCount(amount, event) {
-            event.stopPropagation(); // Stops the full-screen tap from triggering
-            count += amount;
-            updateDisplay();
-            playBeepSound();
+            playLoudBeep();
         }
 
         function resetCount(event) {
-            event.stopPropagation(); // Stops the full-screen tap from triggering
+            event.stopPropagation(); // Prevents the reset tap from adding a count
             count = 0;
             updateDisplay();
-            playBeepSound();
+            playLoudBeep();
         }
 
         function handleControlClick(event) {
-            // Stops tapping the empty space between bottom buttons from incrementing
             event.stopPropagation(); 
         }
 
